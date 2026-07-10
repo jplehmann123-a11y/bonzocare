@@ -10,6 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
   <title>BonzoCare</title>
+  <meta name="application-name" content="BonzoCare 0.1.1">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -76,6 +77,10 @@
 
           <div class="card form-card">
             <h3>🍖 Futter</h3>
+            <label class="field">
+              <span>Futtersorte</span>
+              <input type="text" id="foodType" placeholder="z. B. Rinti Huhn oder selbst gekocht">
+            </label>
             <div class="two-col">
               <label class="field">
                 <span>Angeboten (g)</span>
@@ -86,6 +91,10 @@
                 <input type="number" id="foodEaten" inputmode="numeric" min="0" step="1">
               </label>
             </div>
+            <label class="field">
+              <span>Futter-Notiz</span>
+              <input type="text" id="foodNotes" placeholder="z. B. mit Wasser, Schleckmatte, gemischt">
+            </label>
             <span class="label-title">Appetit</span>
             <div class="segmented" data-field="appetite">
               <button type="button" data-value="Sehr gut">😍 Sehr gut</button>

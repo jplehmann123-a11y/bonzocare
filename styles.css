@@ -97,3 +97,32 @@ canvas{width:100%;display:block}
   #historyView{display:block!important}
   .entry-card{break-inside:avoid;box-shadow:none}
 }
+
+
+/* BonzoCare 0.1.1 – iOS/Safari form fixes */
+.field,
+.two-col,
+.form-card,
+.card {
+  min-width: 0;
+}
+input,
+textarea,
+select {
+  max-width: 100%;
+  min-width: 0;
+}
+input[type="date"] {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+}
+@supports (-webkit-touch-callout: none) {
+  input[type="date"] {
+    padding-right: 12px;
+  }
+}

@@ -1,4 +1,4 @@
-# BonzoCare
+# BonzoCare 0.1.1
 
 Eine kleine installierbare Web-App für Bonzos Gesundheits- und Futterakte.
 
@@ -48,3 +48,13 @@ Am einfachsten über GitHub Pages:
 ## Datenschutz
 
 Alle Einträge liegen standardmäßig ausschließlich im lokalen Speicher des jeweiligen Browsers. Regelmäßig über **Mehr → Sicherung exportieren** eine JSON-Sicherung erstellen.
+
+
+## Änderungen in Version 0.1.1
+
+- neues BonzoCare-App-Icon
+- Darstellungsfehler beim Geburtsdatum auf iPhones behoben
+- Feld „Futtersorte“ ergänzt
+- Feld „Futter-Notiz“ ergänzt
+- Futtersorte und Futter-Notiz erscheinen im Verlauf und im CSV-Export
+- Offline-Cache aktualisiert

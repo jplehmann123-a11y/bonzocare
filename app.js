@@ -61,7 +61,7 @@ function openEntry(entry=null){
   $("entryTitle").textContent=entry?"Eintrag bearbeiten":"Neuer Eintrag";
   $("entryId").value=entry?.id||"";
   $("date").value=entry?.date||localDateISO();
-  ["weight","temperature","foodOffered","foodEaten","medications","notes"].forEach(k=>$(k).value=entry?.[k]??"");
+  ["weight","temperature","foodType","foodOffered","foodEaten","foodNotes","medications","notes"].forEach(k=>$(k).value=entry?.[k]??"");
   ["appetite","stool","water","mood","activity","vomiting"].forEach(k=>{
     if(entry?.[k]){
       state.selections[k]=entry[k];
@@ -80,8 +80,10 @@ $("entryForm").addEventListener("submit",e=>{
     date:$("date").value,
     weight:numOrNull($("weight").value),
     temperature:numOrNull($("temperature").value),
+    foodType:$("foodType").value.trim(),
     foodOffered:numOrNull($("foodOffered").value),
     foodEaten:numOrNull($("foodEaten").value),
+    foodNotes:$("foodNotes").value.trim(),
     medications:$("medications").value.trim(),
     notes:$("notes").value.trim(),
     ...state.selections,
@@ -117,6 +119,8 @@ function renderEntryCards(container,entries){
     return `<article class="entry-card">
       <div class="entry-top"><span class="entry-date">${formatDate(e.date)}</span><span>${e.appetite?esc(e.appetite):""}</span></div>
       <div class="entry-pills">${pills.map(p=>`<span class="pill">${p}</span>`).join("")}</div>
+      ${e.foodType?`<div class="entry-note"><strong>Futtersorte:</strong> ${esc(e.foodType)}</div>`:""}
+      ${e.foodNotes?`<div class="entry-note"><strong>Futter-Notiz:</strong> ${esc(e.foodNotes)}</div>`:""}
       ${e.notes?`<div class="entry-note">${esc(e.notes)}</div>`:""}
       ${e.medications?`<div class="entry-note"><strong>Medikamente:</strong> ${esc(e.medications)}</div>`:""}
       <div class="entry-actions">
@@ -220,8 +224,8 @@ $("importJsonInput").addEventListener("change",async e=>{
   e.target.value="";
 });
 $("exportCsvBtn").addEventListener("click",()=>{
-  const cols=["Datum","Gewicht_kg","Temperatur_C","Futter_angeboten_g","Futter_gefressen_g","Appetit","Stuhlgang","Wasser","Stimmung","Aktivität","Erbrechen","Medikamente","Notizen"];
-  const rows=state.entries.map(e=>[e.date,e.weight,e.temperature,e.foodOffered,e.foodEaten,e.appetite,e.stool,e.water,e.mood,e.activity,e.vomiting,e.medications,e.notes]);
+  const cols=["Datum","Gewicht_kg","Temperatur_C","Futtersorte","Futter_angeboten_g","Futter_gefressen_g","Futter_Notiz","Appetit","Stuhlgang","Wasser","Stimmung","Aktivität","Erbrechen","Medikamente","Notizen"];
+  const rows=state.entries.map(e=>[e.date,e.weight,e.temperature,e.foodType,e.foodOffered,e.foodEaten,e.foodNotes,e.appetite,e.stool,e.water,e.mood,e.activity,e.vomiting,e.medications,e.notes]);
   const csv=[cols,...rows].map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(";")).join("\n");
   download(`bonzocare-${localDateISO()}.csv`,"\ufeff"+csv,"text/csv;charset=utf-8");
 });
