@@ -1,4 +1,4 @@
-# BonzoCare 0.1.2
+# BonzoCare 0.1.3
 
 Eine kleine installierbare Web-App für Bonzos Gesundheits- und Futterakte.
 
@@ -68,3 +68,11 @@ Alle Einträge liegen standardmäßig ausschließlich im lokalen Speicher des je
 - bessere Desktop-Ansicht
 - automatische Datenmigration
 - Versionsanzeige und Changelog
+
+
+## Neu in Version 0.1.3
+- antippbare Futtersorten-Favoriten
+- geheimes Minispiel „Bonzo's Fly Hunter“
+- Freischaltung durch zehnmaliges Tippen auf das Logo
+- lokaler Highscore
+- kleine Bedienverbesserungen

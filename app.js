@@ -2,7 +2,7 @@
 const STORAGE_KEY = "bonzocare_entries_v1";
 const PROFILE_KEY = "bonzocare_profile_v1";
 const FAVORITES_KEY = "bonzocare_food_favorites_v1";
-const APP_VERSION = "0.1.2";
+const APP_VERSION = "0.1.3";
 const SEEN_VERSION_KEY = "bonzocare_seen_version";
 function safeParse(value,fallback){try{return value?JSON.parse(value):fallback}catch{return fallback}}
 function migrateEntries(entries){
@@ -74,6 +74,10 @@ document.querySelectorAll(".segmented").forEach(group=>{
 function renderFoodFavorites(){
   $("foodTypeList").innerHTML=state.foodFavorites.slice().sort((a,b)=>a.localeCompare(b,"de"))
     .map(name=>`<option value="${esc(name)}"></option>`).join("");
+  const chips=$("foodFavoriteChips");
+  if(!chips)return;
+  chips.innerHTML=state.foodFavorites.slice().sort((a,b)=>a.localeCompare(b,"de"))
+    .map(name=>`<button type="button" class="favorite-chip" data-food="${esc(name)}">${esc(name)}</button>`).join("");
 }
 function openEntry(entry=null){
   $("entryForm").reset();
@@ -105,6 +109,13 @@ $("foodType").addEventListener("input",()=>{
   const found=state.foodFavorites.some(x=>x.toLowerCase()===$("foodType").value.trim().toLowerCase());
   $("saveFoodFavoriteBtn").classList.toggle("saved",found);
   $("saveFoodFavoriteBtn").textContent=found?"★":"☆";
+});
+$("foodFavoriteChips").addEventListener("click",e=>{
+  const btn=e.target.closest("[data-food]"); if(!btn)return;
+  $("foodType").value=btn.dataset.food;
+  $("saveFoodFavoriteBtn").classList.add("saved");
+  $("saveFoodFavoriteBtn").textContent="★";
+  toast("Futtersorte ausgewählt");
 });
 $("entryForm").addEventListener("submit",e=>{
   e.preventDefault();
@@ -296,6 +307,24 @@ $("whatsNewBtn").addEventListener("click",openWhatsNew);
 $("closeWhatsNewBtn").addEventListener("click",closeWhatsNew);
 $("ackWhatsNewBtn").addEventListener("click",closeWhatsNew);
 $("whatsNewModal").addEventListener("click",e=>{if(e.target===$("whatsNewModal"))closeWhatsNew()});
+const FLY_HIGHSCORE_KEY="bonzocare_fly_highscore_v1";
+let logoTapCount=0,logoTapTimer=null,gameTimer=null,gameSeconds=30,gameScore=0,gameRunning=false;
+function buildGameStartOverlay(text="Fange in 30 Sekunden so viele Fliegen wie möglich."){
+  $("gameStartOverlay").innerHTML=`<p>${esc(text)}</p><button class="primary" id="dynamicStartFlyGameBtn">Spiel starten</button>`;
+  $("dynamicStartFlyGameBtn").addEventListener("click",startFlyGame,{once:true});
+}
+function openFlyGame(){ $("flyGameModal").hidden=false; $("gameHighscore").textContent=localStorage.getItem(FLY_HIGHSCORE_KEY)||"0"; resetFlyGame(); }
+function closeFlyGame(){ if(gameTimer)clearInterval(gameTimer); gameRunning=false; $("flyGameModal").hidden=true; }
+function resetFlyGame(){ if(gameTimer)clearInterval(gameTimer); gameRunning=false; gameSeconds=30; gameScore=0; $("gameTime").textContent="30"; $("gameScore").textContent="0"; $("flyTarget").classList.remove("show"); $("gameStartOverlay").style.display="grid"; buildGameStartOverlay(); $("gameMessage").textContent="Bonzo wartet auf Beute."; }
+function moveFly(){ const arena=$("gameArena"),fly=$("flyTarget"),pad=12; const maxX=Math.max(pad,arena.clientWidth-fly.offsetWidth-pad),maxY=Math.max(pad,arena.clientHeight-fly.offsetHeight-90); fly.style.left=`${pad+Math.random()*(maxX-pad)}px`; fly.style.top=`${pad+Math.random()*(maxY-pad)}px`; }
+function startFlyGame(){ if(gameTimer)clearInterval(gameTimer); gameRunning=true; gameSeconds=30; gameScore=0; $("gameTime").textContent="30"; $("gameScore").textContent="0"; $("gameStartOverlay").style.display="none"; $("flyTarget").classList.add("show"); $("gameMessage").textContent="Los, Bonzo!"; moveFly(); gameTimer=setInterval(()=>{ gameSeconds--; $("gameTime").textContent=String(gameSeconds); if(gameSeconds<=0)endFlyGame(); },1000); }
+function endFlyGame(){ clearInterval(gameTimer); gameRunning=false; $("flyTarget").classList.remove("show"); const oldHigh=Number(localStorage.getItem(FLY_HIGHSCORE_KEY)||0); let text=`Geschafft: ${gameScore} Fliegen.`; if(gameScore>oldHigh){ localStorage.setItem(FLY_HIGHSCORE_KEY,String(gameScore)); $("gameHighscore").textContent=String(gameScore); text=`Neuer Highscore: ${gameScore}! Bonzo, der Vernichter.`; } $("gameMessage").textContent=text; $("gameStartOverlay").style.display="grid"; buildGameStartOverlay(text); }
+$("appLogo").addEventListener("click",()=>{ logoTapCount++; clearTimeout(logoTapTimer); logoTapTimer=setTimeout(()=>logoTapCount=0,2500); if(logoTapCount>=10){ logoTapCount=0; if(navigator.vibrate)navigator.vibrate([60,40,100]); openFlyGame(); } });
+if($("startFlyGameBtn"))$("startFlyGameBtn").addEventListener("click",startFlyGame);
+$("closeFlyGameBtn").addEventListener("click",closeFlyGame);
+$("flyGameModal").addEventListener("click",e=>{if(e.target===$("flyGameModal"))closeFlyGame()});
+$("flyTarget").addEventListener("click",()=>{ if(!gameRunning)return; gameScore++; $("gameScore").textContent=String(gameScore); $("gameMessage").textContent=gameScore%10===0?"MAMPF!":"Gefangen!"; moveFly(); });
+
 save();renderFoodFavorites();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 renderHome();

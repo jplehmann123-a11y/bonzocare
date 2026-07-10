@@ -18,7 +18,7 @@
     <header class="topbar">
       <div>
         <div class="eyebrow">BONZOS DIGITALE AKTE</div>
-        <h1>BonzoCare 🐾</h1>
+        <h1 id="appLogo" class="app-logo" title="BonzoCare">BonzoCare 🐾</h1>
       </div>
       <button class="icon-btn" id="settingsBtn" aria-label="Einstellungen">⚙️</button>
     </header>
@@ -84,7 +84,8 @@
                 <button type="button" class="small-action" id="saveFoodFavoriteBtn" title="Als Favorit speichern">☆</button>
               </div>
               <datalist id="foodTypeList"></datalist>
-              <small class="field-help">Gespeicherte Sorten erscheinen beim Tippen als Vorschlag.</small>
+              <div id="foodFavoriteChips" class="favorite-chips"></div>
+              <small class="field-help">Favoriten antippen oder mit ☆ speichern.</small>
             </label>
             <div class="two-col">
               <label class="field">
@@ -235,7 +236,7 @@
         </div>
 
         <div class="card version-card">
-          <div><small>Installierte Version</small><strong>BonzoCare 0.1.2</strong></div>
+          <div><small>Installierte Version</small><strong>BonzoCare 0.1.3</strong></div>
           <button class="secondary" id="whatsNewBtn">Was ist neu?</button>
         </div>
         <div class="install-note">
@@ -257,20 +258,36 @@
   <div id="whatsNewModal" class="modal-backdrop" hidden>
     <div class="modal-card" role="dialog" aria-modal="true">
       <div class="section-head">
-        <h2>Neu in BonzoCare 0.1.2</h2>
+        <h2>Neu in BonzoCare 0.1.3</h2>
         <button class="icon-btn" id="closeWhatsNewBtn">✕</button>
       </div>
       <ul class="changelog-list">
-        <li>Letzter bekannter Wert pro Dashboard-Kachel</li>
-        <li>Teil-Einträge überschreiben keine anderen Werte mehr</li>
-        <li>Datum unter jeder Kachel</li>
-        <li>Futtersorten-Favoriten</li>
-        <li>Bessere Mac- und Desktop-Ansicht</li>
-        <li>Automatische Übernahme bestehender Daten</li>
+        <li>Futtersorten-Favoriten sind jetzt direkt antippbar.</li>
+        <li>Das Dashboard behält weiterhin den letzten bekannten Wert je Kategorie.</li>
+        <li>Geheimes Easter Egg eingebaut.</li>
+        <li>Highscore wird lokal gespeichert.</li>
+        <li>Kleine Darstellungs- und Bedienverbesserungen.</li>
       </ul>
       <button class="primary big" id="ackWhatsNewBtn">Verstanden</button>
     </div>
   </div>
+
+  <div id="flyGameModal" class="modal-backdrop" hidden>
+    <div class="modal-card game-card" role="dialog" aria-modal="true">
+      <div class="section-head">
+        <div><div class="eyebrow">GEHEIMES EASTER EGG</div><h2>Bonzo's Fly Hunter 🪰</h2></div>
+        <button class="icon-btn" id="closeFlyGameBtn">✕</button>
+      </div>
+      <div class="game-status"><span>Zeit: <strong id="gameTime">30</strong>s</span><span>Punkte: <strong id="gameScore">0</strong></span><span>Highscore: <strong id="gameHighscore">0</strong></span></div>
+      <div id="gameArena" class="game-arena" aria-label="Spielfeld">
+        <div class="game-bonzo">🐶</div>
+        <button id="flyTarget" class="fly-target" type="button" aria-label="Fliege fangen">🪰</button>
+        <div id="gameStartOverlay" class="game-overlay"><p>Fange in 30 Sekunden so viele Fliegen wie möglich.</p><button class="primary" id="startFlyGameBtn">Spiel starten</button></div>
+      </div>
+      <p id="gameMessage" class="game-message">Bonzo wartet auf Beute.</p>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
