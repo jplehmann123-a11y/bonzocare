@@ -1,10 +1,26 @@
 
 const STORAGE_KEY = "bonzocare_entries_v1";
 const PROFILE_KEY = "bonzocare_profile_v1";
+const FAVORITES_KEY = "bonzocare_food_favorites_v1";
+const APP_VERSION = "0.1.2";
+const SEEN_VERSION_KEY = "bonzocare_seen_version";
+function safeParse(value,fallback){try{return value?JSON.parse(value):fallback}catch{return fallback}}
+function migrateEntries(entries){
+  if(!Array.isArray(entries))return [];
+  return entries.map((e,i)=>({
+    id:e.id||`legacy-${e.date||"unknown"}-${i}`,date:e.date||localDateISO(),
+    weight:e.weight??null,temperature:e.temperature??null,foodType:e.foodType||"",
+    foodOffered:e.foodOffered??null,foodEaten:e.foodEaten??null,foodNotes:e.foodNotes||"",
+    appetite:e.appetite||"",stool:e.stool||"",water:e.water||"",mood:e.mood||"",
+    activity:e.activity||"",vomiting:e.vomiting||"",medications:e.medications||"",
+    notes:e.notes||"",updatedAt:e.updatedAt||`${e.date||localDateISO()}T12:00:00.000Z`
+  }));
+}
 const state = {
-  entries: JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"),
-  profile: JSON.parse(localStorage.getItem(PROFILE_KEY) || '{"name":"Bonzo","birthday":"2025-03-23"}'),
-  selections: {}
+  entries:migrateEntries(safeParse(localStorage.getItem(STORAGE_KEY),[])),
+  profile:safeParse(localStorage.getItem(PROFILE_KEY),{"name":"Bonzo","birthday":"2025-03-23"}),
+  foodFavorites:safeParse(localStorage.getItem(FAVORITES_KEY),[]),
+  selections:{}
 };
 
 const $ = (id) => document.getElementById(id);
@@ -26,6 +42,7 @@ function formatDate(iso) {
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.entries));
   localStorage.setItem(PROFILE_KEY, JSON.stringify(state.profile));
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.foodFavorites));
 }
 function toast(msg){
   const el=$("toast"); el.textContent=msg; el.classList.add("show");
@@ -54,8 +71,13 @@ document.querySelectorAll(".segmented").forEach(group=>{
   });
 });
 
+function renderFoodFavorites(){
+  $("foodTypeList").innerHTML=state.foodFavorites.slice().sort((a,b)=>a.localeCompare(b,"de"))
+    .map(name=>`<option value="${esc(name)}"></option>`).join("");
+}
 function openEntry(entry=null){
   $("entryForm").reset();
+  renderFoodFavorites();
   state.selections={};
   document.querySelectorAll(".segmented button").forEach(b=>b.classList.remove("selected"));
   $("entryTitle").textContent=entry?"Eintrag bearbeiten":"Neuer Eintrag";
@@ -72,6 +94,18 @@ function openEntry(entry=null){
   navigate("entry");
 }
 
+$("saveFoodFavoriteBtn").addEventListener("click",()=>{
+  const value=$("foodType").value.trim();
+  if(!value){toast("Bitte zuerst eine Futtersorte eintragen");return}
+  if(!state.foodFavorites.some(x=>x.toLowerCase()===value.toLowerCase())){
+    state.foodFavorites.push(value);save();renderFoodFavorites();toast("Futtersorte gespeichert");
+  }else toast("Diese Futtersorte ist schon gespeichert");
+});
+$("foodType").addEventListener("input",()=>{
+  const found=state.foodFavorites.some(x=>x.toLowerCase()===$("foodType").value.trim().toLowerCase());
+  $("saveFoodFavoriteBtn").classList.toggle("saved",found);
+  $("saveFoodFavoriteBtn").textContent=found?"★":"☆";
+});
 $("entryForm").addEventListener("submit",e=>{
   e.preventDefault();
   const id=$("entryId").value || crypto.randomUUID();
@@ -96,15 +130,32 @@ $("entryForm").addEventListener("submit",e=>{
 });
 function numOrNull(v){ return v===""?null:Number(String(v).replace(",",".")); }
 
+function latestEntryWith(field){
+  return [...state.entries].filter(e=>e[field]!==null&&e[field]!==undefined&&e[field]!=="")
+    .sort((a,b)=>b.date.localeCompare(a.date)||String(b.updatedAt||"").localeCompare(String(a.updatedAt||"")))[0]||null;
+}
+function relativeLabel(iso){
+  if(!iso)return "Noch nie erfasst";
+  const today=new Date(localDateISO()+"T12:00:00"),then=new Date(iso+"T12:00:00");
+  const days=Math.round((today-then)/86400000);
+  if(days===0)return "Heute"; if(days===1)return "Gestern";
+  if(days>1&&days<14)return `Vor ${days} Tagen`;
+  return new Intl.DateTimeFormat("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"}).format(then);
+}
+function setDashboardStat(valueId,dateId,entry,formatter){
+  $(valueId).textContent=entry?formatter(entry):"–";
+  $(dateId).textContent=entry?relativeLabel(entry.date):"Noch nie erfasst";
+}
 function renderHome(){
   $("todayLabel").textContent=new Intl.DateTimeFormat("de-DE",{weekday:"long",day:"numeric",month:"long"}).format(new Date());
-  const today=state.entries.find(e=>e.date===localDateISO());
-  $("summaryText").textContent=today?"Der heutige Eintrag ist vollständig gespeichert.":"Noch kein Eintrag für heute.";
-  $("statWeight").textContent=today?.weight!=null?`${today.weight.toFixed(2).replace(".",",")} kg`:"–";
-  $("statFood").textContent=today?.foodEaten!=null?`${today.foodEaten} g`:"–";
-  $("statStool").textContent=today?.stool||"–";
-  $("statMood").textContent=today?.mood||"–";
-  renderEntryCards($("recentEntries"),state.entries.slice(0,4));
+  const hasToday=state.entries.some(e=>e.date===localDateISO());
+  $("summaryText").textContent=hasToday?"Heute wurde Bonzos Akte bereits aktualisiert.":"Noch kein Eintrag für heute.";
+  const w=latestEntryWith("weight"),f=latestEntryWith("foodEaten"),s=latestEntryWith("stool"),m=latestEntryWith("mood");
+  setDashboardStat("statWeight","statWeightDate",w,e=>`${Number(e.weight).toFixed(2).replace(".",",")} kg`);
+  setDashboardStat("statFood","statFoodDate",f,e=>`${e.foodEaten} g`);
+  setDashboardStat("statStool","statStoolDate",s,e=>e.stool);
+  setDashboardStat("statMood","statMoodDate",m,e=>e.mood);
+  renderEntryCards($("recentEntries"),state.entries.slice(0,6));
 }
 
 function renderEntryCards(container,entries){
@@ -212,14 +263,14 @@ $("saveProfileBtn").addEventListener("click",()=>{
 });
 $("exportJsonBtn").addEventListener("click",exportJSON);
 function exportJSON(){
-  download(`bonzocare-sicherung-${localDateISO()}.json`,JSON.stringify({profile:state.profile,entries:state.entries,exportedAt:new Date().toISOString()},null,2),"application/json");
+  download(`bonzocare-sicherung-${localDateISO()}.json`,JSON.stringify({version:APP_VERSION,profile:state.profile,foodFavorites:state.foodFavorites,entries:state.entries,exportedAt:new Date().toISOString()},null,2),"application/json");
 }
 $("importJsonInput").addEventListener("change",async e=>{
   const file=e.target.files[0];if(!file)return;
   try{
     const data=JSON.parse(await file.text());
     if(!Array.isArray(data.entries))throw new Error();
-    state.entries=data.entries;state.profile=data.profile||state.profile;save();renderHome();toast("Sicherung importiert");
+    state.entries=migrateEntries(data.entries);state.profile=data.profile||state.profile;state.foodFavorites=Array.isArray(data.foodFavorites)?data.foodFavorites:state.foodFavorites;save();renderFoodFavorites();renderHome();toast("Sicherung importiert");
   }catch{alert("Die Datei konnte nicht gelesen werden.");}
   e.target.value="";
 });
@@ -239,5 +290,13 @@ function download(name,content,type){
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href);
 }
 
+function openWhatsNew(){$("whatsNewModal").hidden=false}
+function closeWhatsNew(){$("whatsNewModal").hidden=true;localStorage.setItem(SEEN_VERSION_KEY,APP_VERSION)}
+$("whatsNewBtn").addEventListener("click",openWhatsNew);
+$("closeWhatsNewBtn").addEventListener("click",closeWhatsNew);
+$("ackWhatsNewBtn").addEventListener("click",closeWhatsNew);
+$("whatsNewModal").addEventListener("click",e=>{if(e.target===$("whatsNewModal"))closeWhatsNew()});
+save();renderFoodFavorites();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 renderHome();
+if(localStorage.getItem(SEEN_VERSION_KEY)!==APP_VERSION)setTimeout(openWhatsNew,350);

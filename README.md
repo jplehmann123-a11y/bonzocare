@@ -1,4 +1,4 @@
-# BonzoCare 0.1.1
+# BonzoCare 0.1.2
 
 Eine kleine installierbare Web-App für Bonzos Gesundheits- und Futterakte.
 
@@ -58,3 +58,13 @@ Alle Einträge liegen standardmäßig ausschließlich im lokalen Speicher des je
 - Feld „Futter-Notiz“ ergänzt
 - Futtersorte und Futter-Notiz erscheinen im Verlauf und im CSV-Export
 - Offline-Cache aktualisiert
+
+
+## Neu in 0.1.2
+- letzter bekannter Wert im Dashboard
+- Datum je Kachel
+- Teil-Einträge bleiben vollständig
+- Futtersorten-Favoriten
+- bessere Desktop-Ansicht
+- automatische Datenmigration
+- Versionsanzeige und Changelog

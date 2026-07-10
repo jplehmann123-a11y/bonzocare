@@ -126,3 +126,32 @@ input[type="date"] {
     padding-right: 12px;
   }
 }
+
+.stat-card em{display:block;margin-top:4px;color:var(--muted);font-size:11px;font-style:normal;line-height:1.25}
+.input-action-row{display:grid;grid-template-columns:minmax(0,1fr) 48px;gap:8px;align-items:center}
+.small-action{height:48px;border:1px solid var(--line);background:#fff;border-radius:14px;font-size:24px;color:var(--accent-dark)}
+.small-action.saved{background:#ead6c6}
+.field-help{display:block;color:var(--muted);margin-top:6px;font-size:11px}
+.version-card{margin-top:14px;padding:16px;display:flex;justify-content:space-between;gap:12px;align-items:center}
+.version-card small{display:block;color:var(--muted);margin-bottom:3px}
+.modal-backdrop{position:fixed;inset:0;background:rgba(45,42,38,.36);backdrop-filter:blur(8px);z-index:100;display:grid;place-items:center;padding:20px}
+.modal-backdrop[hidden]{display:none}
+.modal-card{width:min(560px,100%);background:var(--card);border-radius:24px;padding:20px;box-shadow:0 24px 70px rgba(45,42,38,.24)}
+.changelog-list{padding-left:22px;line-height:1.55}
+.changelog-list li+li{margin-top:7px}
+@media (min-width:900px){
+  .app-shell{max-width:1180px;padding-left:28px;padding-right:28px;padding-bottom:40px}
+  #homeView.active{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);grid-template-areas:"hero recent" "stats recent" "button recent";gap:18px 22px;align-items:start}
+  #homeView .hero-card{grid-area:hero;margin-bottom:0}
+  #homeView .stat-grid{grid-area:stats;grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:0}
+  #homeView>.big{grid-area:button;margin:0}
+  #homeView>.section-head{grid-area:recent;margin:0 0 60px}
+  #homeView>#recentEntries{grid-area:recent;margin-top:48px}
+  #entryView.active,#historyView.active,#chartsView.active,#settingsView.active{display:block;max-width:1100px;margin:0 auto}
+  #entryForm{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px}
+  #entryForm>.field,#entryForm>.two-col,#entryForm>.card{margin:0}
+  #entryForm>label.field:last-of-type,#entryForm>button[type="submit"]{grid-column:1/-1}
+  #settingsView{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  #settingsView>h2,#settingsView .install-note,#settingsView .danger-card,#settingsView .version-card{grid-column:1/-1}
+  .bottom-nav{position:sticky;left:auto;bottom:0;transform:none;width:100%;max-width:1180px;margin:28px auto 0;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+}

@@ -35,10 +35,10 @@
         </div>
 
         <div class="stat-grid">
-          <div class="stat-card"><span>⚖️</span><div><small>Gewicht</small><strong id="statWeight">–</strong></div></div>
-          <div class="stat-card"><span>🍖</span><div><small>Gefressen</small><strong id="statFood">–</strong></div></div>
-          <div class="stat-card"><span>💩</span><div><small>Stuhlgang</small><strong id="statStool">–</strong></div></div>
-          <div class="stat-card"><span>😊</span><div><small>Stimmung</small><strong id="statMood">–</strong></div></div>
+          <div class="stat-card"><span>⚖️</span><div><small>Gewicht</small><strong id="statWeight">–</strong><em id="statWeightDate">Noch nie erfasst</em></div></div>
+          <div class="stat-card"><span>🍖</span><div><small>Gefressen</small><strong id="statFood">–</strong><em id="statFoodDate">Noch nie erfasst</em></div></div>
+          <div class="stat-card"><span>💩</span><div><small>Stuhlgang</small><strong id="statStool">–</strong><em id="statStoolDate">Noch nie erfasst</em></div></div>
+          <div class="stat-card"><span>😊</span><div><small>Stimmung</small><strong id="statMood">–</strong><em id="statMoodDate">Noch nie erfasst</em></div></div>
         </div>
 
         <button class="primary big" id="newEntryBtn">＋ Neuer Eintrag</button>
@@ -79,7 +79,12 @@
             <h3>🍖 Futter</h3>
             <label class="field">
               <span>Futtersorte</span>
-              <input type="text" id="foodType" placeholder="z. B. Rinti Huhn oder selbst gekocht">
+              <div class="input-action-row">
+                <input type="text" id="foodType" list="foodTypeList" placeholder="z. B. Rinti Huhn oder selbst gekocht">
+                <button type="button" class="small-action" id="saveFoodFavoriteBtn" title="Als Favorit speichern">☆</button>
+              </div>
+              <datalist id="foodTypeList"></datalist>
+              <small class="field-help">Gespeicherte Sorten erscheinen beim Tippen als Vorschlag.</small>
             </label>
             <div class="two-col">
               <label class="field">
@@ -229,6 +234,10 @@
           <button class="danger" id="deleteAllBtn">Alle Daten löschen</button>
         </div>
 
+        <div class="card version-card">
+          <div><small>Installierte Version</small><strong>BonzoCare 0.1.2</strong></div>
+          <button class="secondary" id="whatsNewBtn">Was ist neu?</button>
+        </div>
         <div class="install-note">
           <strong>Auf dem iPhone installieren</strong>
           <p>Diese Seite in Safari öffnen → Teilen → „Zum Home-Bildschirm“.</p>
@@ -245,7 +254,23 @@
   </div>
 
   <div id="toast" class="toast"></div>
-
+  <div id="whatsNewModal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="section-head">
+        <h2>Neu in BonzoCare 0.1.2</h2>
+        <button class="icon-btn" id="closeWhatsNewBtn">✕</button>
+      </div>
+      <ul class="changelog-list">
+        <li>Letzter bekannter Wert pro Dashboard-Kachel</li>
+        <li>Teil-Einträge überschreiben keine anderen Werte mehr</li>
+        <li>Datum unter jeder Kachel</li>
+        <li>Futtersorten-Favoriten</li>
+        <li>Bessere Mac- und Desktop-Ansicht</li>
+        <li>Automatische Übernahme bestehender Daten</li>
+      </ul>
+      <button class="primary big" id="ackWhatsNewBtn">Verstanden</button>
+    </div>
+  </div>
   <script src="app.js"></script>
 </body>
 </html>
