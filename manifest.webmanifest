@@ -1,0 +1,20 @@
+{
+  "name": "BonzoCare – Bonzos digitale Akte",
+  "short_name": "BonzoCare",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6efe7",
+  "theme_color": "#f6efe7",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
