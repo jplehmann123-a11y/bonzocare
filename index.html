@@ -29,16 +29,16 @@
           <div>
             <div class="eyebrow">HEUTE</div>
             <h2 id="todayLabel"></h2>
-            <p id="summaryText">Noch kein Eintrag für heute.</p>
+            <p id="summaryText">Noch kein Eintrag für heute.</p><p id="dailyHint" class="daily-hint"></p>
           </div>
           <div class="avatar">🐶</div>
         </div>
 
         <div class="stat-grid">
-          <div class="stat-card"><span>⚖️</span><div><small>Gewicht</small><strong id="statWeight">–</strong><em id="statWeightDate">Noch nie erfasst</em></div></div>
-          <div class="stat-card"><span>🍖</span><div><small>Gefressen</small><strong id="statFood">–</strong><em id="statFoodDate">Noch nie erfasst</em></div></div>
-          <div class="stat-card"><span>💩</span><div><small>Stuhlgang</small><strong id="statStool">–</strong><em id="statStoolDate">Noch nie erfasst</em></div></div>
-          <div class="stat-card"><span>😊</span><div><small>Stimmung</small><strong id="statMood">–</strong><em id="statMoodDate">Noch nie erfasst</em></div></div>
+          <div class="stat-card"><span>⚖️</span><div><small>Letztes Gewicht</small><strong id="statWeight">–</strong><em id="statWeightDate">Noch nie erfasst</em></div></div>
+          <div class="stat-card"><span>🍖</span><div><small>Heute gefressen</small><strong id="statFood">–</strong><em id="statFoodDate">Noch nie erfasst</em></div></div>
+          <div class="stat-card"><span>💩</span><div><small>Stuhlgang heute</small><strong id="statStool">–</strong><em id="statStoolDate">Noch nie erfasst</em></div></div>
+          <div class="stat-card"><span>😊</span><div><small>Letzte Stimmung</small><strong id="statMood">–</strong><em id="statMoodDate">Noch nie erfasst</em></div></div>
         </div>
 
         <button class="primary big" id="newEntryBtn">＋ Neuer Eintrag</button>
@@ -236,7 +236,7 @@
         </div>
 
         <div class="card version-card">
-          <div><small>Installierte Version</small><strong>BonzoCare 0.1.3</strong></div>
+          <div><small>Installierte Version</small><strong>BonzoCare 0.2.0</strong></div>
           <button class="secondary" id="whatsNewBtn">Was ist neu?</button>
         </div>
         <div class="install-note">
@@ -258,15 +258,15 @@
   <div id="whatsNewModal" class="modal-backdrop" hidden>
     <div class="modal-card" role="dialog" aria-modal="true">
       <div class="section-head">
-        <h2>Neu in BonzoCare 0.1.3</h2>
+        <h2>Neu in BonzoCare 0.2.0</h2>
         <button class="icon-btn" id="closeWhatsNewBtn">✕</button>
       </div>
       <ul class="changelog-list">
-        <li>Futtersorten-Favoriten sind jetzt direkt antippbar.</li>
-        <li>Das Dashboard behält weiterhin den letzten bekannten Wert je Kategorie.</li>
-        <li>Geheimes Easter Egg eingebaut.</li>
-        <li>Highscore wird lokal gespeichert.</li>
-        <li>Kleine Darstellungs- und Bedienverbesserungen.</li>
+        <li>Mehrere Futtereinträge werden zur heutigen Gesamtmenge addiert.</li>
+        <li>Die Stuhlgang-Kachel zeigt Anzahl und letzten dokumentierten Wert von heute.</li>
+        <li>Gewicht und Stimmung zeigen weiterhin den letzten bekannten Wert mit Datum.</li>
+        <li>Die Startseite unterscheidet jetzt klar zwischen Tageswerten und Verlaufswerten.</li>
+        <li>Bestehende Einträge und Sicherungen bleiben kompatibel.</li>
       </ul>
       <button class="primary big" id="ackWhatsNewBtn">Verstanden</button>
     </div>

@@ -2,7 +2,7 @@
 const STORAGE_KEY = "bonzocare_entries_v1";
 const PROFILE_KEY = "bonzocare_profile_v1";
 const FAVORITES_KEY = "bonzocare_food_favorites_v1";
-const APP_VERSION = "0.1.3";
+const APP_VERSION = "0.2.0";
 const SEEN_VERSION_KEY = "bonzocare_seen_version";
 function safeParse(value,fallback){try{return value?JSON.parse(value):fallback}catch{return fallback}}
 function migrateEntries(entries){
@@ -145,6 +145,11 @@ function latestEntryWith(field){
   return [...state.entries].filter(e=>e[field]!==null&&e[field]!==undefined&&e[field]!=="")
     .sort((a,b)=>b.date.localeCompare(a.date)||String(b.updatedAt||"").localeCompare(String(a.updatedAt||"")))[0]||null;
 }
+function entriesForDate(iso){
+  return state.entries
+    .filter(e=>e.date===iso)
+    .sort((a,b)=>String(a.updatedAt||"").localeCompare(String(b.updatedAt||"")));
+}
 function relativeLabel(iso){
   if(!iso)return "Noch nie erfasst";
   const today=new Date(localDateISO()+"T12:00:00"),then=new Date(iso+"T12:00:00");
@@ -157,15 +162,57 @@ function setDashboardStat(valueId,dateId,entry,formatter){
   $(valueId).textContent=entry?formatter(entry):"–";
   $(dateId).textContent=entry?relativeLabel(entry.date):"Noch nie erfasst";
 }
+function todayFoodSummary(entries){
+  const values=entries
+    .map(e=>Number(e.foodEaten))
+    .filter(v=>Number.isFinite(v)&&v>=0);
+  return {
+    total:values.reduce((sum,v)=>sum+v,0),
+    count:values.length
+  };
+}
+function todayStoolSummary(entries){
+  const stools=entries.filter(e=>e.stool);
+  return {
+    count:stools.length,
+    latest:stools.length?stools[stools.length-1]:null
+  };
+}
 function renderHome(){
+  const today=localDateISO();
+  const todaysEntries=entriesForDate(today);
   $("todayLabel").textContent=new Intl.DateTimeFormat("de-DE",{weekday:"long",day:"numeric",month:"long"}).format(new Date());
-  const hasToday=state.entries.some(e=>e.date===localDateISO());
-  $("summaryText").textContent=hasToday?"Heute wurde Bonzos Akte bereits aktualisiert.":"Noch kein Eintrag für heute.";
-  const w=latestEntryWith("weight"),f=latestEntryWith("foodEaten"),s=latestEntryWith("stool"),m=latestEntryWith("mood");
-  setDashboardStat("statWeight","statWeightDate",w,e=>`${Number(e.weight).toFixed(2).replace(".",",")} kg`);
-  setDashboardStat("statFood","statFoodDate",f,e=>`${e.foodEaten} g`);
-  setDashboardStat("statStool","statStoolDate",s,e=>e.stool);
-  setDashboardStat("statMood","statMoodDate",m,e=>e.mood);
+
+  const food=todayFoodSummary(todaysEntries);
+  const stool=todayStoolSummary(todaysEntries);
+  const latestWeight=latestEntryWith("weight");
+  const latestMood=latestEntryWith("mood");
+
+  $("summaryText").textContent=todaysEntries.length
+    ? `Bonzos Akte wurde heute ${todaysEntries.length===1?"einmal":todaysEntries.length+"-mal"} aktualisiert.`
+    : "Noch kein Eintrag für heute.";
+
+  const completed=[];
+  if(food.count)completed.push(`${food.total} g Futter`);
+  if(stool.count)completed.push(`${stool.count}× Stuhlgang`);
+  $("dailyHint").textContent=completed.length?completed.join(" · "):"Heute sind noch keine Tageswerte erfasst.";
+
+  setDashboardStat("statWeight","statWeightDate",latestWeight,e=>`${Number(e.weight).toFixed(2).replace(".",",")} kg`);
+
+  $("statFood").textContent=food.count?`${food.total} g`:"–";
+  $("statFoodDate").textContent=food.count
+    ? `${food.count} ${food.count===1?"Futtereintrag":"Futtereinträge"} heute`
+    : "Heute noch nichts erfasst";
+
+  $("statStool").textContent=stool.count
+    ? `${stool.count}× · ${stool.latest.stool}`
+    : "–";
+  $("statStoolDate").textContent=stool.count
+    ? `Letzter Wert: ${stool.latest.stool}`
+    : "Heute noch nichts erfasst";
+
+  setDashboardStat("statMood","statMoodDate",latestMood,e=>e.mood);
+
   renderEntryCards($("recentEntries"),state.entries.slice(0,6));
 }
 

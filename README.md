@@ -1,4 +1,4 @@
-# BonzoCare 0.1.3
+# BonzoCare 0.2.0 – Everyday
 
 Eine kleine installierbare Web-App für Bonzos Gesundheits- und Futterakte.
 
@@ -76,3 +76,13 @@ Alle Einträge liegen standardmäßig ausschließlich im lokalen Speicher des je
 - Freischaltung durch zehnmaliges Tippen auf das Logo
 - lokaler Highscore
 - kleine Bedienverbesserungen
+
+
+## Neu in Version 0.2.0 – Everyday, Teil 1
+
+- tägliche Futtermenge wird aus mehreren Einträgen summiert
+- Stuhlgänge des Tages werden gezählt
+- letzter dokumentierter Stuhlgang wird auf dem Dashboard angezeigt
+- letztes Gewicht und letzte Stimmung bleiben unabhängig von Teil-Einträgen sichtbar
+- klarere Trennung zwischen Tagesübersicht und letztem bekannten Gesundheitswert
+- bestehende lokale Daten bleiben kompatibel
