@@ -1,4 +1,4 @@
-# BonzoCare 0.2.0 – Everyday
+# BonzoCare 0.2.1 – Care & Grooming
 
 Eine kleine installierbare Web-App für Bonzos Gesundheits- und Futterakte.
 
@@ -86,3 +86,11 @@ Alle Einträge liegen standardmäßig ausschließlich im lokalen Speicher des je
 - letztes Gewicht und letzte Stimmung bleiben unabhängig von Teil-Einträgen sichtbar
 - klarere Trennung zwischen Tagesübersicht und letztem bekannten Gesundheitswert
 - bestehende lokale Daten bleiben kompatibel
+
+
+## Neu in Version 0.2.1
+- Pflege-Modul für Friseur, Baden, Ohren, Augen, Krallen und Zähne
+- optionale Angaben für Hundesalon und Shampoo
+- Pflegeverlauf mit Bearbeiten und Löschen
+- letzte Pflege auf dem Dashboard
+- Pflegehistorie in der JSON-Sicherung

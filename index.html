@@ -39,6 +39,7 @@
           <div class="stat-card"><span>🍖</span><div><small>Heute gefressen</small><strong id="statFood">–</strong><em id="statFoodDate">Noch nie erfasst</em></div></div>
           <div class="stat-card"><span>💩</span><div><small>Stuhlgang heute</small><strong id="statStool">–</strong><em id="statStoolDate">Noch nie erfasst</em></div></div>
           <div class="stat-card"><span>😊</span><div><small>Letzte Stimmung</small><strong id="statMood">–</strong><em id="statMoodDate">Noch nie erfasst</em></div></div>
+          <button class="stat-card care-stat-card" id="openCareBtn" type="button"><span>✨</span><div><small>Letzte Pflege</small><strong id="statCare">–</strong><em id="statCareDate">Noch nie erfasst</em></div></button>
         </div>
 
         <button class="primary big" id="newEntryBtn">＋ Neuer Eintrag</button>
@@ -213,6 +214,29 @@
         </div>
       </section>
 
+
+      <section id="careView" class="view">
+        <div class="section-head"><div><div class="eyebrow">PFLEGE & WOHLBEFINDEN</div><h2>Pflege</h2></div><button class="primary compact" id="newCareBtn">＋ Eintragen</button></div>
+        <div class="care-overview-grid" id="careOverview"></div>
+        <div class="section-head"><h3>Pflegeverlauf</h3></div>
+        <div id="careList" class="card-list"></div>
+      </section>
+
+      <section id="careEntryView" class="view">
+        <div class="section-head"><h2 id="careEntryTitle">Pflege eintragen</h2><button class="text-btn" id="cancelCareBtn">Abbrechen</button></div>
+        <form id="careForm">
+          <input type="hidden" id="careId">
+          <label class="field"><span>Art der Pflege</span><select id="careType" required>
+            <option value="">Bitte auswählen</option><option value="Friseur">✂️ Friseur</option><option value="Baden">🛁 Baden</option><option value="Ohren gereinigt">👂 Ohren gereinigt</option><option value="Augen gereinigt">👁️ Augen gereinigt</option><option value="Krallen geschnitten">🐾 Krallen geschnitten</option><option value="Zähne geputzt">🪥 Zähne geputzt</option>
+          </select></label>
+          <label class="field"><span>Datum</span><input type="date" id="careDate" required></label>
+          <label class="field" id="groomerField" hidden><span>Hundesalon / Friseur</span><input type="text" id="careGroomer" placeholder="optional"></label>
+          <label class="field" id="shampooField" hidden><span>Shampoo</span><input type="text" id="careShampoo" placeholder="optional"></label>
+          <label class="field"><span>Notiz</span><textarea id="careNotes" rows="5" placeholder="z. B. Sommerschnitt, gut vertragen, kleine Verfilzung entfernt …"></textarea></label>
+          <button class="primary big" type="submit">Pflegeeintrag speichern</button>
+        </form>
+      </section>
+
       <section id="settingsView" class="view">
         <h2>Einstellungen & Datensicherung</h2>
         <div class="card form-card">
@@ -236,7 +260,7 @@
         </div>
 
         <div class="card version-card">
-          <div><small>Installierte Version</small><strong>BonzoCare 0.2.0</strong></div>
+          <div><small>Installierte Version</small><strong>BonzoCare 0.2.1</strong></div>
           <button class="secondary" id="whatsNewBtn">Was ist neu?</button>
         </div>
         <div class="install-note">
@@ -250,6 +274,7 @@
       <button class="active" data-nav="home"><span>🏠</span>Heute</button>
       <button data-nav="history"><span>📋</span>Verlauf</button>
       <button data-nav="charts"><span>📈</span>Diagramme</button>
+      <button data-nav="care"><span>✨</span>Pflege</button>
       <button data-nav="settings"><span>⚙️</span>Mehr</button>
     </nav>
   </div>
@@ -258,16 +283,10 @@
   <div id="whatsNewModal" class="modal-backdrop" hidden>
     <div class="modal-card" role="dialog" aria-modal="true">
       <div class="section-head">
-        <h2>Neu in BonzoCare 0.2.0</h2>
+        <h2>Neu in BonzoCare 0.2.1</h2>
         <button class="icon-btn" id="closeWhatsNewBtn">✕</button>
       </div>
-      <ul class="changelog-list">
-        <li>Mehrere Futtereinträge werden zur heutigen Gesamtmenge addiert.</li>
-        <li>Die Stuhlgang-Kachel zeigt Anzahl und letzten dokumentierten Wert von heute.</li>
-        <li>Gewicht und Stimmung zeigen weiterhin den letzten bekannten Wert mit Datum.</li>
-        <li>Die Startseite unterscheidet jetzt klar zwischen Tageswerten und Verlaufswerten.</li>
-        <li>Bestehende Einträge und Sicherungen bleiben kompatibel.</li>
-      </ul>
+      <ul class="changelog-list"><li>Neues Pflege-Modul mit eigenem Verlauf.</li><li>Friseur, Baden, Ohren, Augen, Krallen und Zähne erfassen.</li><li>Friseur und Shampoo optional notieren.</li><li>Letzte Pflegemaßnahme erscheint auf dem Dashboard.</li><li>Pflegeeinträge bearbeiten und löschen.</li><li>Sicherungen enthalten die Pflegehistorie.</li></ul>
       <button class="primary big" id="ackWhatsNewBtn">Verstanden</button>
     </div>
   </div>

@@ -2,7 +2,8 @@
 const STORAGE_KEY = "bonzocare_entries_v1";
 const PROFILE_KEY = "bonzocare_profile_v1";
 const FAVORITES_KEY = "bonzocare_food_favorites_v1";
-const APP_VERSION = "0.2.0";
+const CARE_KEY = "bonzocare_care_entries_v1";
+const APP_VERSION = "0.2.1";
 const SEEN_VERSION_KEY = "bonzocare_seen_version";
 function safeParse(value,fallback){try{return value?JSON.parse(value):fallback}catch{return fallback}}
 function migrateEntries(entries){
@@ -20,6 +21,7 @@ const state = {
   entries:migrateEntries(safeParse(localStorage.getItem(STORAGE_KEY),[])),
   profile:safeParse(localStorage.getItem(PROFILE_KEY),{"name":"Bonzo","birthday":"2025-03-23"}),
   foodFavorites:safeParse(localStorage.getItem(FAVORITES_KEY),[]),
+  careEntries:safeParse(localStorage.getItem(CARE_KEY),[]),
   selections:{}
 };
 
@@ -29,6 +31,8 @@ const views = {
   entry: $("entryView"),
   history: $("historyView"),
   charts: $("chartsView"),
+  care: $("careView"),
+  careEntry: $("careEntryView"),
   settings: $("settingsView")
 };
 
@@ -43,6 +47,7 @@ function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.entries));
   localStorage.setItem(PROFILE_KEY, JSON.stringify(state.profile));
   localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.foodFavorites));
+  localStorage.setItem(CARE_KEY, JSON.stringify(state.careEntries));
 }
 function toast(msg){
   const el=$("toast"); el.textContent=msg; el.classList.add("show");
@@ -54,6 +59,7 @@ function navigate(name){
   if(name==="home") renderHome();
   if(name==="history") renderHistory();
   if(name==="charts") renderCharts();
+  if(name==="care") renderCare();
   if(name==="settings") renderSettings();
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -178,6 +184,12 @@ function todayStoolSummary(entries){
     latest:stools.length?stools[stools.length-1]:null
   };
 }
+
+const CARE_TYPES={"Friseur":{icon:"✂️",label:"Friseur"},"Baden":{icon:"🛁",label:"Baden"},"Ohren gereinigt":{icon:"👂",label:"Ohren"},"Augen gereinigt":{icon:"👁️",label:"Augen"},"Krallen geschnitten":{icon:"🐾",label:"Krallen"},"Zähne geputzt":{icon:"🪥",label:"Zähne"}};
+function careMeta(type){return CARE_TYPES[type]||{icon:"✨",label:type||"Pflege"}}
+function sortedCareEntries(){return [...state.careEntries].sort((a,b)=>b.date.localeCompare(a.date)||String(b.updatedAt||"").localeCompare(String(a.updatedAt||"")))}
+function latestCareEntry(type=null){return sortedCareEntries().find(e=>!type||e.type===type)||null}
+
 function renderHome(){
   const today=localDateISO();
   const todaysEntries=entriesForDate(today);
@@ -212,6 +224,9 @@ function renderHome(){
     : "Heute noch nichts erfasst";
 
   setDashboardStat("statMood","statMoodDate",latestMood,e=>e.mood);
+  const care=latestCareEntry();
+  $("statCare").textContent=care?`${careMeta(care.type).icon} ${care.type}`:"–";
+  $("statCareDate").textContent=care?relativeLabel(care.date):"Noch nie erfasst";
 
   renderEntryCards($("recentEntries"),state.entries.slice(0,6));
 }
@@ -312,6 +327,19 @@ function drawLineChart(canvas,points,opt){
   ctx.textAlign="start";
 }
 
+
+function renderCare(){
+  $("careOverview").innerHTML=Object.keys(CARE_TYPES).map(type=>{const item=latestCareEntry(type),meta=careMeta(type);return `<div class="care-overview-card"><span class="care-icon">${meta.icon}</span><small>${esc(type)}</small><strong>${item?formatDate(item.date):"Noch nie"}</strong><em>${item?relativeLabel(item.date):"Kein Eintrag"}</em></div>`}).join("");
+  const items=sortedCareEntries();
+  if(!items.length){$("careList").innerHTML='<div class="entry-card"><span class="entry-note">Noch keine Pflegeeinträge vorhanden.</span></div>';return}
+  $("careList").innerHTML=items.map(e=>{const meta=careMeta(e.type),details=[];if(e.groomer)details.push(`<strong>Salon:</strong> ${esc(e.groomer)}`);if(e.shampoo)details.push(`<strong>Shampoo:</strong> ${esc(e.shampoo)}`);if(e.notes)details.push(esc(e.notes));return `<article class="entry-card care-entry-card"><div class="care-title-row"><span>${meta.icon}</span><span>${esc(e.type)}</span></div><div class="entry-note">${formatDate(e.date)}</div>${details.map(x=>`<div class="entry-note">${x}</div>`).join("")}<div class="entry-actions"><button class="mini-btn" onclick="editCareEntry('${e.id}')">Bearbeiten</button><button class="mini-btn delete" onclick="deleteCareEntry('${e.id}')">Löschen</button></div></article>`}).join("");
+}
+function updateCareConditionalFields(){const type=$("careType").value;$("groomerField").hidden=type!=="Friseur";$("shampooField").hidden=type!=="Baden"}
+function openCareEntry(entry=null){$("careForm").reset();$("careId").value=entry?.id||"";$("careEntryTitle").textContent=entry?"Pflegeeintrag bearbeiten":"Pflege eintragen";$("careType").value=entry?.type||"";$("careDate").value=entry?.date||localDateISO();$("careGroomer").value=entry?.groomer||"";$("careShampoo").value=entry?.shampoo||"";$("careNotes").value=entry?.notes||"";updateCareConditionalFields();navigate("careEntry")}
+$("newCareBtn").addEventListener("click",()=>openCareEntry());$("openCareBtn").addEventListener("click",()=>navigate("care"));$("cancelCareBtn").addEventListener("click",()=>navigate("care"));$("careType").addEventListener("change",updateCareConditionalFields);
+$("careForm").addEventListener("submit",e=>{e.preventDefault();const id=$("careId").value||crypto.randomUUID();const item={id,type:$("careType").value,date:$("careDate").value,groomer:$("careGroomer").value.trim(),shampoo:$("careShampoo").value.trim(),notes:$("careNotes").value.trim(),updatedAt:new Date().toISOString()};const idx=state.careEntries.findIndex(x=>x.id===id);if(idx>=0)state.careEntries[idx]=item;else state.careEntries.push(item);save();toast("Pflegeeintrag gespeichert");navigate("care")});
+window.editCareEntry=id=>openCareEntry(state.careEntries.find(e=>e.id===id));window.deleteCareEntry=id=>{if(!confirm("Diesen Pflegeeintrag wirklich löschen?"))return;state.careEntries=state.careEntries.filter(e=>e.id!==id);save();renderCare();renderHome();toast("Pflegeeintrag gelöscht")};
+
 function renderSettings(){
   $("dogName").value=state.profile.name||"Bonzo";
   $("dogBirthday").value=state.profile.birthday||"2025-03-23";
@@ -321,14 +349,14 @@ $("saveProfileBtn").addEventListener("click",()=>{
 });
 $("exportJsonBtn").addEventListener("click",exportJSON);
 function exportJSON(){
-  download(`bonzocare-sicherung-${localDateISO()}.json`,JSON.stringify({version:APP_VERSION,profile:state.profile,foodFavorites:state.foodFavorites,entries:state.entries,exportedAt:new Date().toISOString()},null,2),"application/json");
+  download(`bonzocare-sicherung-${localDateISO()}.json`,JSON.stringify({version:APP_VERSION,profile:state.profile,foodFavorites:state.foodFavorites,careEntries:state.careEntries,entries:state.entries,exportedAt:new Date().toISOString()},null,2),"application/json");
 }
 $("importJsonInput").addEventListener("change",async e=>{
   const file=e.target.files[0];if(!file)return;
   try{
     const data=JSON.parse(await file.text());
     if(!Array.isArray(data.entries))throw new Error();
-    state.entries=migrateEntries(data.entries);state.profile=data.profile||state.profile;state.foodFavorites=Array.isArray(data.foodFavorites)?data.foodFavorites:state.foodFavorites;save();renderFoodFavorites();renderHome();toast("Sicherung importiert");
+    state.entries=migrateEntries(data.entries);state.profile=data.profile||state.profile;state.foodFavorites=Array.isArray(data.foodFavorites)?data.foodFavorites:state.foodFavorites;state.careEntries=Array.isArray(data.careEntries)?data.careEntries:state.careEntries;save();renderFoodFavorites();renderHome();toast("Sicherung importiert");
   }catch{alert("Die Datei konnte nicht gelesen werden.");}
   e.target.value="";
 });
@@ -341,7 +369,7 @@ $("exportCsvBtn").addEventListener("click",()=>{
 $("printBtn").addEventListener("click",()=>{navigate("history");setTimeout(()=>window.print(),300);});
 $("deleteAllBtn").addEventListener("click",()=>{
   if(confirm("Wirklich alle Bonzo-Daten unwiderruflich löschen?")){
-    state.entries=[];save();renderHome();toast("Alle Daten gelöscht");
+    state.entries=[];state.careEntries=[];save();renderHome();renderCare();toast("Alle Daten gelöscht");
   }
 });
 function download(name,content,type){
